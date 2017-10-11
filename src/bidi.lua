@@ -10,6 +10,7 @@
 -- @module bidi
 local ucdn = require("ucdn")
 local bracket = require("bidi.bracket")
+local bit32 = require ("plugin.bit")
 
 -- This implementation is a port based on the reference implementation found at:
 -- http://www.unicode.org/Public/PROGRAMS/BidiReferenceJava/
@@ -881,14 +882,17 @@ end
 function IsolatingRunSequence:findRunLimit(index, limit, validSet)
   while index <= limit do
     local t = self.types[index]
+    local continue1;
     for i = 1, #validSet do
       if t == validSet[i] then
         index = index + 1
-        goto continue1
+        continue1 = true
+        break
       end
     end
-    do return index - 1 end
-    ::continue1::
+    if not continue1 then
+      return index - 1
+    end
   end
   return limit
 end
@@ -905,11 +909,13 @@ end
 function IsolatingRunSequence:assertOnly(codes)
   for i = 1, #self.types do
     local t = self.types[i]
+    local continue2;
     for j = 1, #codes do
-      if t == codes[j] then goto continue2 end
+      if t == codes[j] then continue2 = true; break end
     end
-    error("invalid bidi code "..typenames[t+1].." present in assertOnly at position "..self.indexes[i])
-    ::continue2::
+    if not continue2 then
+      error("invalid bidi code "..typenames[t+1].." present in assertOnly at position "..self.indexes[i])
+    end
   end
 end
 
