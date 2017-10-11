@@ -76,9 +76,8 @@ function BracketPairer:locateBrackets(pairTypes, pairValues)
         return
       end
       self.openers:pushFront(ich)
-    elseif pairTypes[index] == C then -- closing bracket found
+    elseif pairTypes[index] == C and not self.openers:getCount() == 0 then -- closing bracket found
       -- see if there is a match
-      if self.openers:getCount() == 0 then goto continue2 end
       local iter = self.openers:getHead()
       local count = 0
       while iter ~= nil do
@@ -97,7 +96,6 @@ function BracketPairer:locateBrackets(pairTypes, pairValues)
       -- if we get here, the closing bracket matched no openers
       -- and gets ignored
     end
-    ::continue2::
   end
 end
 
@@ -171,12 +169,12 @@ function BracketPairer:classifyPairContent(pairedLocation, dirEmbed)
   local dirOpposite = ON
   for ich = pairedLocation.opener + 1, pairedLocation.closer - 1 do
     local dir = self:getStrongTypeN0(ich)
-    if dir == ON then goto continue1 end
-    if dir == dirEmbed then
-      return dir
-    end -- type matching embedding direction found
-    dirOpposite = dir
-    ::continue1::
+    if not dir == ON then
+      if dir == dirEmbed then
+        return dir
+      end -- type matching embedding direction found
+      dirOpposite = dir
+    end
   end
 
 
