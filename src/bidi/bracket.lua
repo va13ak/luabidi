@@ -1,5 +1,6 @@
 local ucdn = require("ucdn")
 local LinkedList = require("bidi.LinkedList")
+local bit32 = require ("plugin.bit")
 
 -- This file contains a port of the reference implementation of the
 -- Bidi Parentheses Algorithm:
